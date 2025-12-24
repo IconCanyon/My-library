@@ -6,3 +6,6 @@
   });
 })();
 
+// Usage Method
+// You can now add focus to any HTML element
+// by placing it inside ('span, a, label').
