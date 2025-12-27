@@ -1584,136 +1584,136 @@
 // يتم حقن أنماط CSS مباشرة في الصفحة لتجنب الحاجة لملف منفصل.
 const styles = `
     .emoji-picker-btn {
-        position: fixed;
-        background: #fff;
-        fill: #007aff;
-        color: #007aff;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        padding: 5px 8px;
-        cursor: pointer;
-        font-size: 20px;
-        line-height: 1;
-        z-index: 1000;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        opacity: 1 !important;
-        visibility: visible !important;
-        display: block !important;
-        pointer-events: auto !important;
-        transition: background 0.2s ease;
+        position: fixed !important;
+        background: #fff !important;
+        fill: #007aff !important;
+        color: #007aff !important;
+        border: 1px solid #ccc !important;
+        border-radius: 5px !important;
+        padding: 5px 8px !important;
+        cursor: pointer !important;
+        font-size: 20px !important;
+        line-height: 1 !important;
+        z-index: 1000 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        opacity: 1 !important !important;
+        visibility: visible !important !important;
+        display: block !important !important;
+        pointer-events: auto !important !important;
+        transition: background 0.2s ease !important;
     }
     .emoji-picker-btn:hover {
-        background: #e0e0e0;
+        background: #e0e0e0 !important;
     }
     .emoji-picker-btn svg {
-        height: 24px;
-        display: flex;
+        height: 24px !important;
+        display: flex !important;
     }
     .emoji-picker-container {
-        position: absolute;
-        background: #fff;
-        overflow: hidden;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 10000;
-        width: 350px;
-        max-height: 427px;
+        position: absolute !important;
+        background: #fff !important;
+        overflow: hidden !important;
+        border: 1px solid #ccc !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        z-index: 10000 !important;
+        width: 350px !important;
+        max-height: 427px !important;
         display: none;
-        flex-direction: column;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        flex-direction: column !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
     }
     .emoji-picker-search {
-        margin: 10px;
-        padding: 8px;
-        outline-color: #007aff;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 14px;
+        margin: 10px !important;
+        padding: 8px !important;
+        outline-color: #007aff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 5px !important;
+        font-size: 14px !important;
     }
     .emoji-picker-categories {
-        display: flex;
-        border-bottom: 1px solid #eee;
-        background: #f8f8f8;
-        overflow-x: auto;
-        scrollbar-width: none;
-        cursor: grab; /* تمت إضافة هذا السطر */
-        user-select: none; /* منع تحديد النص أثناء السحب */
+        display: flex !important;
+        border-bottom: 1px solid #eee !important;
+        background: #f8f8f8 !important;
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+        cursor: grab !important; /* تمت إضافة هذا السطر */
+        user-select: none !important; /* منع تحديد النص أثناء السحب */
     }
     .emoji-picker-categories::-webkit-scrollbar {
-        display: none;
+        display: none !important;
     }
     .emoji-picker-category {
-        color: #00000071;
-        padding: 8px 12px;
-        cursor: pointer;
-        white-space: nowrap;
-        font-size: 18px;
-        transition: all 0.2s ease;
+        color: #00000071 !important;
+        padding: 8px 12px !important;
+        cursor: pointer !important;
+        white-space: nowrap !important;
+        font-size: 18px !important;
+        transition: all 0.2s ease !important;
     }
     .emoji-picker-category:hover {
-        color: #000000c5;
+        color: #000000c5 !important;
     }
     .emoji-picker-category.active {
-        color: #000;
-        box-shadow: 0px -2px 0px #007aff inset;
-        background: #fff;
+        color: #000 !important;
+        box-shadow: 0px -2px 0px #007aff inset !important;
+        background: #fff !important;
     }
     .emoji-picker-content {
-        flex-grow: 1;
-        overflow-y: auto;
-        padding: 10px;
-        height: 312px;
-        scrollbar-width: thin;
-        scrollbar-color: #ccc #f0f0f0;
+        flex-grow: 1 !important;
+        overflow-y: auto !important;
+        padding: 10px !important;
+        height: 312px !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: #ccc #f0f0f0 !important;
     }
     .emoji-picker-content::-webkit-scrollbar {
-        width: 6px;
+        width: 6px !important;
     }
     .emoji-picker-content::-webkit-scrollbar-track {
-        background: #f0f0f0;
+        background: #f0f0f0 !important;
     }
     .emoji-picker-content::-webkit-scrollbar-thumb {
-        background-color: #ccc;
-        border-radius: 3px;
+        background-color: #ccc !important;
+        border-radius: 3px !important;
     }
     .emoji-picker-section {
-        display: none;
+        display: none !important;
     }
     .emoji-picker-section.active {
-        display: block;
+        display: block !important;
     }
     .emoji-picker-emoji {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 45px;
-        height: 45px;
-        cursor: pointer;
-        font-size: 24px;
-        border-radius: 10px;
-        transition: background 0.2s ease;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 45px !important;
+        height: 45px !important;
+        cursor: pointer !important;
+        font-size: 24px !important;
+        border-radius: 10px !important;
+        transition: background 0.2s ease !important;
     }
     .emoji-picker-emoji:hover {
-        background: #eee;
+        background: #eee !important;
     }
     .backspace {
-        background: white;
-        position: sticky;
-        cursor: pointer;
-        z-index: 5; 
-        right: 0;
-        padding: 0 9px;
-        display: flex;
-        align-items: center;
-        border-left: solid 1px #eeeeee;
+        background: white !important;
+        position: sticky !important;
+        cursor: pointer !important;
+        z-index: 5 !important; 
+        right: 0 !important;
+        padding: 0 9px !important;
+        display: flex !important;
+        align-items: center !important;
+        border-left: solid 1px #eeeeee !important;
     }
     .backspace svg {
-        width: 24px;
-        height: 24px;
+        width: 24px !important;
+        height: 24px !important;
     }
     .backspace:active svg {
-        opacity: .5;
+        opacity: .5 !important;
     }
 `;
 const styleSheet = document.createElement("style");
