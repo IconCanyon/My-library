@@ -6,7 +6,7 @@
     .native-select { display: none !important; }
 
     .custom-select {
-      position: relative;
+      position: relative !important;
       font-size: 14px !important;
       width: 250px !important;
       font-family: Arial, sans-serif !important;
@@ -59,7 +59,15 @@
       margin-top: 4px !important;
       display: none !important;
       z-index: 9999 !important;
+      min-height: 100px !important;
       box-shadow: 0 3px 10px 2px #454b5b3b !important;
+    }
+    .custom-options::after {
+      position: absolute !important;
+      content: 'Option not found';
+      top: 60px !important;
+      left: 10px !important;
+      opacity: .6 !important;
     }
 
     .custom-options.top {
@@ -99,8 +107,11 @@
     }
 
     .custom-options-list {
+      position: relative !important;
+      z-index: 10 !important;
       max-height: 360px !important;
       overflow-y: auto !important;
+      background: white !important;
     }
 
     .custom-option {
