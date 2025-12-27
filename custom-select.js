@@ -106,6 +106,8 @@
     .custom-option {
       padding: 14px 14px !important;
       cursor: pointer !important;
+      display: flex !important;
+      align-items: center !important;
     }
 
     .custom-option:hover,
@@ -114,7 +116,18 @@
     }
 
     .custom-option.active {
-      box-shadow: 0 0 0 2px #006fff inset !important;
+      font-weight: 600 !important;
+    //   box-shadow: 4px 0px 0px #006fff inset !important;
+    }
+
+    .custom-option.active::before {
+      position: absolute !important;
+      content: '' !important;
+      left: 4px !important;
+      width: 4px !important;
+      border-radius: 5px !important;
+      height: 25px !important;
+      background-color: #006fff !important;
     }
   `;
   document.head.appendChild(style);
