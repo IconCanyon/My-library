@@ -1596,11 +1596,11 @@ const styles = `
         line-height: 1 !important;
         z-index: 1000 !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-        opacity: 1 !important !important;
-        visibility: visible !important !important;
-        display: block !important !important;
-        pointer-events: auto !important !important;
-        transition: background 0.2s ease !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: block !important;
+        pointer-events: auto !important;
+        transition: background 0.2s ease;
     }
     .emoji-picker-btn:hover {
         background: #e0e0e0 !important;
@@ -1758,7 +1758,7 @@ function createPicker() {
         if (!firstCategoryName) firstCategoryName = categoryName;
 
         // زر الفئة
-        categoriesHTML += `<div class="emoji-picker-category" data-category="${categoryName}">
+        categoriesHTML += `<div class="emoji-picker-category Wave-cloud" data-category="${categoryName}">
             ${categoryName.split(' ')[0]}
         </div>`;
 
@@ -1766,7 +1766,7 @@ function createPicker() {
         let emojisHTML = '';
         emojiData[categoryName].forEach(emojiChar => {
             const emojiName = getEmojiName(emojiChar);
-            emojisHTML += `<span class="emoji-picker-emoji" title="${emojiName}">${emojiChar}</span>`;
+            emojisHTML += `<span class="emoji-picker-emoji Wave-cloud" title="${emojiName}">${emojiChar}</span>`;
         });
 
         sectionsHTML += `<div class="emoji-picker-section" data-category="${categoryName}">
