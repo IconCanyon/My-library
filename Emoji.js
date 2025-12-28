@@ -1594,7 +1594,7 @@ const styles = `
         cursor: pointer !important;
         font-size: 20px !important;
         line-height: 1 !important;
-        z-index: 100 !important;
+        z-index: 1000 !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
         opacity: 1 !important;
         visibility: visible !important;
