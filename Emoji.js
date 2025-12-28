@@ -1656,6 +1656,7 @@
             pointer-events: none !important;
         }
         .emoji-picker-categories {
+            cursor: context-menu !important;
             display: flex !important;
             border-bottom: 1px solid #eee !important;
             background: #f8f8f8 !important;
@@ -1760,6 +1761,7 @@
         }
         .language-toggle {
             position: absolute !important;
+            border-radius: 25px !important;
             opacity: .5 !important;
             top: 5px !important;
             right: 5px !important;
