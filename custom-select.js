@@ -59,12 +59,12 @@
       margin-top: 4px !important;
       display: none !important;
       z-index: 9999 !important;
-      min-height: 100px !important;
+      min-height: 120px !important;
       box-shadow: 0 3px 10px 2px #454b5b3b !important;
     }
     .custom-options::after {
       position: absolute !important;
-      content: 'Option not found';
+      content: 'Option not found...';
       top: 60px !important;
       left: 10px !important;
       opacity: .6 !important;
