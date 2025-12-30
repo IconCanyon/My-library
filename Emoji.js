@@ -1690,6 +1690,10 @@
             color: #000000a2 !important;
         }
         .emoji-picker-category.active {
+            // position: sticky !important;
+            // left: 0 !important;
+            // right: 41px !important;
+            // z-index: 5 !important;
             opacity: 1 !important;
             color: #000 !important;
             background: #fff !important;
