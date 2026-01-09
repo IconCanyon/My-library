@@ -296,6 +296,8 @@
      Global variables
   ========================= */
   let currentOpenPicker = null;
+  let mutationObserver = null;
+  let resizeObserver = null;
 
   /* =========================
      Utils
@@ -352,7 +354,7 @@
   }
 
   function hexToHsv(hex) {
-    if (!hex || typeof hex !== 'string') return { h: 0, s: 0, v: 0 }; // تغيير هنا: جعل القيم الافتراضية للون الأسود
+    if (!hex || typeof hex !== 'string') return { h: 0, s: 0, v: 0 };
     
     if (hex.length === 4) {
       hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
@@ -413,7 +415,7 @@
   }
 
   function parseColorValue(inputValue) {
-    if (!inputValue) return { hex: '#000000', alpha: 100, format: 'hex' }; // تغيير هنا: اللون الافتراضي أصبح أسود
+    if (!inputValue) return { hex: '#000000', alpha: 100, format: 'hex' };
     
     // If hex
     if (isValidHex(inputValue)) {
@@ -446,7 +448,7 @@
       }
     }
     
-    return { hex: '#000000', alpha: 100, format: 'hex' }; // تغيير هنا: اللون الافتراضي أصبح أسود
+    return { hex: '#000000', alpha: 100, format: 'hex' };
   }
 
   /* =========================
@@ -645,6 +647,18 @@
     }
 
     document.addEventListener("mousedown", handleDocumentClick);
+
+    // Function to handle window resize and body resize
+    function handleResize() {
+      if (currentOpenPicker === box && box.style.display === "block") {
+        box.style.display = "none";
+        currentOpenPicker = null;
+      }
+    }
+
+    // Add resize event listener
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
 
     function setupDrag(element, callback) {
       element.addEventListener("mousedown", (e) => {
@@ -884,6 +898,8 @@
     // Save reference for cleanup
     wrapper._cleanup = () => {
       document.removeEventListener("mousedown", handleDocumentClick);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
       input.style.display = "";
       delete input.dataset.ccp;
       if (currentOpenPicker === box) {
@@ -907,36 +923,93 @@
       }
     });
     currentOpenPicker = null;
+    
+    // Remove resize observer if exists
+    if (resizeObserver) {
+      resizeObserver.disconnect();
+      resizeObserver = null;
+    }
+  }
+
+  // Function to check for dynamic inputs
+  function checkForDynamicInputs() {
+    // Check for color inputs without ccp attribute
+    document.querySelectorAll('input[type="color"]:not([data-ccp])').forEach(createPicker);
+    
+    // Also check for inputs with specific class or data attribute
+    document.querySelectorAll('.custom-color-input:not([data-ccp])').forEach(createPicker);
+    document.querySelectorAll('[data-color-picker]:not([data-ccp])').forEach(createPicker);
+  }
+
+  // Start Mutation Observer
+  function startMutationObserver() {
+    if (mutationObserver) {
+      mutationObserver.disconnect();
+    }
+    
+    mutationObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length) {
+          // Check all added nodes for color inputs
+          mutation.addedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              // Check the node itself
+              if (node.matches && node.matches('input[type="color"]')) {
+                createPicker(node);
+              }
+              
+              // Check all descendants
+              if (node.querySelectorAll) {
+                node.querySelectorAll('input[type="color"]').forEach(createPicker);
+                node.querySelectorAll('.custom-color-input').forEach(createPicker);
+                node.querySelectorAll('[data-color-picker]').forEach(createPicker);
+              }
+            }
+          });
+        }
+      });
+    });
+    
+    // Observe the entire document for changes
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  // Start Resize Observer for body and window
+  function startResizeObserver() {
+    // Use ResizeObserver API if available
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        if (currentOpenPicker) {
+          currentOpenPicker.style.display = "none";
+          currentOpenPicker = null;
+        }
+      });
+      
+      // Observe body and documentElement
+      resizeObserver.observe(document.body);
+      resizeObserver.observe(document.documentElement);
+    }
   }
 
   // Auto-initialize when page loads
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       init();
-      // Monitor DOM for dynamically added components
-      new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.addedNodes.length) {
-            init();
-          }
-        });
-      }).observe(document.body, {
-        childList: true,
-        subtree: true
-      });
+      checkForDynamicInputs();
+      startMutationObserver();
+      startResizeObserver();
     });
   } else {
     init();
-    new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.addedNodes.length) {
-          init();
-        }
-      });
-    }).observe(document.body, {
-      childList: true,
-      subtree: true
-    });
+    checkForDynamicInputs();
+    startMutationObserver();
+    startResizeObserver();
   }
+
+  // Expose a method to manually check for new inputs
+  window.CustomColorPicker.checkForNewInputs = checkForDynamicInputs;
 
 })(window, document);
