@@ -133,21 +133,29 @@
     .ccp-input-row {
       display: flex !important;
       padding: 0 10px !important;
-      margin-top: 8px !important;
+      margin-top: 10px !important;
       gap: 8px !important;
     }
     .ccp-input-short {
       flex: 1 !important;
       text-align: center !important;
-      border: 1px solid #ccc !important;
+      border: 1px solid #ccccccb6 !important;
       border-radius: 5px !important;
       padding: 4px !important;
+      outline: none;
       font-family: monospace !important;
     }
+    .ccp-input-short:hover {
+      border: 1px solid #3c40464b !important;
+      background: #87878710 !important;
+    }
     .ccp-input-short:focus {
-      outline-color: #006eff !important;
-      outline-offset: 2px;
-      outline: solid 2px;
+      border: 1px solid #1d7fffff !important;
+      box-shadow: 0 0 0 3px #006eff1e;
+      // outline-color: #006eff !important;
+      background: #ffff !important;
+      // outline-offset: 2px;
+      // outline: solid 2px;
     }
     .ccp-header-row {
       z-index: 5 !important;
