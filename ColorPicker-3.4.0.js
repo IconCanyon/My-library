@@ -152,10 +152,7 @@
     .ccp-input-short:focus {
       border: 1px solid #1d7fffff !important;
       box-shadow: 0 0 0 3px #006eff1e;
-      // outline-color: #006eff !important;
       background: #ffff !important;
-      // outline-offset: 2px;
-      // outline: solid 2px;
     }
     .ccp-header-row {
       z-index: 5 !important;
@@ -308,85 +305,153 @@
   let currentOpenPicker = null;
   let mutationObserver = null;
   let resizeObserver = null;
-  let boxResizeObservers = new WeakMap(); // لتخزين ResizeObserver لكل مربع
+  let boxResizeObservers = new WeakMap();
 
   /* =========================
-     Utils
+     Utils - Color Conversion
   ========================= */
-  function hsvToHex(h, s, v) {
-    let f = (n, k = (n + h / 60) % 6) =>
-      v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
-    return "#" + [f(5), f(3), f(1)]
-      .map(x => Math.round(x * 255).toString(16).padStart(2, "0"))
-      .join("");
-  }
-  
+  // HSV to RGB
   function hsvToRgb(h, s, v) {
-    let f = (n, k = (n + h / 60) % 6) =>
-      v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
+    h = (h % 360 + 360) % 360;
+    s = Math.max(0, Math.min(1, s));
+    v = Math.max(0, Math.min(1, v));
+    
+    const c = v * s;
+    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    const m = v - c;
+    
+    let r, g, b;
+    
+    if (h >= 0 && h < 60) {
+      [r, g, b] = [c, x, 0];
+    } else if (h >= 60 && h < 120) {
+      [r, g, b] = [x, c, 0];
+    } else if (h >= 120 && h < 180) {
+      [r, g, b] = [0, c, x];
+    } else if (h >= 180 && h < 240) {
+      [r, g, b] = [0, x, c];
+    } else if (h >= 240 && h < 300) {
+      [r, g, b] = [x, 0, c];
+    } else {
+      [r, g, b] = [c, 0, x];
+    }
+    
     return {
-      r: Math.round(f(5) * 255),
-      g: Math.round(f(3) * 255),
-      b: Math.round(f(1) * 255)
+      r: Math.round((r + m) * 255),
+      g: Math.round((g + m) * 255),
+      b: Math.round((b + m) * 255)
     };
   }
-  
-  function hexToRgba(hex, alpha = 1) {
-    if (!hex || typeof hex !== 'string' || hex === 'transparent') return 'rgba(0, 0, 0, 0)';
+
+  // RGB to HSV
+  function rgbToHsv(r, g, b) {
+    r /= 255;
+    g /= 255;
+    b /= 255;
     
-    // Handle short hex
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const d = max - min;
+    
+    let h = 0;
+    if (d !== 0) {
+      if (max === r) {
+        h = (g - b) / d + (g < b ? 6 : 0);
+      } else if (max === g) {
+        h = (b - r) / d + 2;
+      } else {
+        h = (r - g) / d + 4;
+      }
+      h *= 60;
+    }
+    
+    const s = max === 0 ? 0 : d / max;
+    const v = max;
+    
+    return { h, s, v };
+  }
+
+  // HSV to Hex
+  function hsvToHex(h, s, v) {
+    const rgb = hsvToRgb(h, s, v);
+    return rgbToHex(rgb.r, rgb.g, rgb.b);
+  }
+
+  // RGB to Hex
+  function rgbToHex(r, g, b) {
+    return "#" + [r, g, b].map(x => {
+      const hex = x.toString(16);
+      return hex.length === 1 ? "0" + hex : hex;
+    }).join("");
+  }
+
+  // Hex to RGB
+  function hexToRgb(hex) {
+    if (!hex || hex === 'transparent') return { r: 0, g: 0, b: 0 };
+    
     if (hex.length === 4) {
       hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
     }
     
-    if (!isValidHex(hex)) return 'rgba(0, 0, 0, 0)';
-    
-    const r = parseInt(hex.substr(1, 2), 16);
-    const g = parseInt(hex.substr(3, 2), 16);
-    const b = parseInt(hex.substr(5, 2), 16);
-    
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }
-  
-  function rgbaToHex(rgba) {
-    const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-    if (!match) return '#000000';
-    
-    const r = parseInt(match[1]);
-    const g = parseInt(match[2]);
-    const b = parseInt(match[3]);
-    
-    return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
-  }
-  
-  function getAlphaFromRgba(rgba) {
-    const match = rgba.match(/rgba?\([\d\s,]+?,\s*([\d.]+)\)/);
-    return match ? parseFloat(match[1]) : 1;
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : { r: 0, g: 0, b: 0 };
   }
 
+  // Hex to HSV
   function hexToHsv(hex) {
-    if (!hex || typeof hex !== 'string' || hex === 'transparent') return { h: 0, s: 0, v: 0 };
-    
-    if (hex.length === 4) {
-      hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
-    }
-    
-    if (!isValidHex(hex)) return { h: 0, s: 0, v: 0 };
-    
-    let r = parseInt(hex.substr(1, 2), 16) / 255;
-    let g = parseInt(hex.substr(3, 2), 16) / 255;
-    let b = parseInt(hex.substr(5, 2), 16) / 255;
-    let max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let d = max - min;
-    let h = d === 0 ? 0 :
-      max === r ? ((g - b) / d) % 6 :
-      max === g ? (b - r) / d + 2 :
-                  (r - g) / d + 4;
-    h = (h * 60 + 360) % 360;
-    let s = max === 0 ? 0 : d / max;
-    return { h, s, v: max };
+    if (!hex || hex === 'transparent') return { h: 0, s: 0, v: 0 };
+    const rgb = hexToRgb(hex);
+    return rgbToHsv(rgb.r, rgb.g, rgb.b);
   }
 
+  // Hex to RGBA
+  function hexToRgba(hex, alpha = 1) {
+    if (!hex || hex === 'transparent') return 'rgba(0, 0, 0, 0)';
+    const rgb = hexToRgb(hex);
+    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+  }
+
+  // HSV to HSL
+  function hsvToHsl(h, s, v) {
+    const l = v * (1 - s / 2);
+    const s2 = l === 0 || l === 1 ? 0 : (v - l) / Math.min(l, 1 - l);
+    return { h, s: s2, l };
+  }
+
+  // HSL to HSV
+  function hslToHsv(h, s, l) {
+    const v = l + s * Math.min(l, 1 - l);
+    const s2 = v === 0 ? 0 : 2 * (1 - l / v);
+    return { h, s: s2, v };
+  }
+
+  // HSV to HSL string
+  function hsvToHslString(h, s, v, alpha = 1) {
+    const hsl = hsvToHsl(h, s, v);
+    if (alpha < 1) {
+      return `hsla(${Math.round(hsl.h)}, ${Math.round(hsl.s * 100)}%, ${Math.round(hsl.l * 100)}%, ${alpha})`;
+    }
+    return `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s * 100)}%, ${Math.round(hsl.l * 100)}%)`;
+  }
+
+  // Parse HSL/HSLA string
+  function parseHslString(hslString) {
+    const match = hslString.match(/hsla?\((\d+),\s*([\d.]+)%?,\s*([\d.]+)%?(?:,\s*([\d.]+))?\)/i);
+    if (!match) return null;
+    
+    const h = parseInt(match[1]);
+    const s = parseFloat(match[2]) / 100;
+    const l = parseFloat(match[3]) / 100;
+    const alpha = match[4] ? parseFloat(match[4]) : 1;
+    
+    return { h, s, l, alpha };
+  }
+
+  // Validation functions
   function isValidHex(hex) {
     if (!hex || typeof hex !== 'string') return false;
     return /^#([0-9A-F]{3}){1,2}$/i.test(hex);
@@ -424,7 +489,33 @@
     
     return r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255 && a >= 0 && a <= 1;
   }
+  
+  function isValidHsl(hsl) {
+    if (!hsl || typeof hsl !== 'string') return false;
+    const match = hsl.match(/^hsl\((\d+),\s*([\d.]+)%?,\s*([\d.]+)%?\)$/i);
+    if (!match) return false;
+    
+    const h = parseInt(match[1]);
+    const s = parseFloat(match[2]);
+    const l = parseFloat(match[3]);
+    
+    return h >= 0 && h <= 360 && s >= 0 && s <= 100 && l >= 0 && l <= 100;
+  }
+  
+  function isValidHsla(hsla) {
+    if (!hsla || typeof hsla !== 'string') return false;
+    const match = hsla.match(/^hsla\((\d+),\s*([\d.]+)%?,\s*([\d.]+)%?,\s*([\d.]+)\)$/i);
+    if (!match) return false;
+    
+    const h = parseInt(match[1]);
+    const s = parseFloat(match[2]);
+    const l = parseFloat(match[3]);
+    const a = parseFloat(match[4]);
+    
+    return h >= 0 && h <= 360 && s >= 0 && s <= 100 && l >= 0 && l <= 100 && a >= 0 && a <= 1;
+  }
 
+  // Parse any color value
   function parseColorValue(inputValue) {
     if (!inputValue || inputValue === 'transparent') {
       return { hex: 'transparent', alpha: 0, format: 'hex' };
@@ -443,8 +534,7 @@
         const g = parseInt(rgbaMatch[2]);
         const b = parseInt(rgbaMatch[3]);
         const alpha = rgbaMatch[4] ? parseFloat(rgbaMatch[4]) * 100 : 100;
-        
-        const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        const hex = rgbToHex(r, g, b);
         return { hex, alpha, format: 'rgba' };
       }
     }
@@ -456,8 +546,35 @@
         const r = parseInt(rgbMatch[1]);
         const g = parseInt(rgbMatch[2]);
         const b = parseInt(rgbMatch[3]);
-        const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        const hex = rgbToHex(r, g, b);
         return { hex, alpha: 100, format: 'rgb' };
+      }
+    }
+    
+    // If hsla
+    if (isValidHsla(inputValue)) {
+      const hslaMatch = inputValue.match(/hsla\((\d+),\s*([\d.]+)%?,\s*([\d.]+)%?,\s*([\d.]+)\)/i);
+      if (hslaMatch) {
+        const h = parseInt(hslaMatch[1]);
+        const s = parseFloat(hslaMatch[2]) / 100;
+        const l = parseFloat(hslaMatch[3]) / 100;
+        const alpha = parseFloat(hslaMatch[4]) * 100;
+        const hsv = hslToHsv(h, s, l);
+        const hex = hsvToHex(hsv.h, hsv.s, hsv.v);
+        return { hex, alpha, format: 'hsla' };
+      }
+    }
+    
+    // If hsl
+    if (isValidHsl(inputValue)) {
+      const hslMatch = inputValue.match(/hsl\((\d+),\s*([\d.]+)%?,\s*([\d.]+)%?\)/i);
+      if (hslMatch) {
+        const h = parseInt(hslMatch[1]);
+        const s = parseFloat(hslMatch[2]) / 100;
+        const l = parseFloat(hslMatch[3]) / 100;
+        const hsv = hslToHsv(h, s, l);
+        const hex = hsvToHex(hsv.h, hsv.s, hsv.v);
+        return { hex, alpha: 100, format: 'hsl' };
       }
     }
     
@@ -523,7 +640,7 @@
           </div>
       </div>
       <div class="ccp-input-row">
-        <input name="hex" class="ccp-input-short ccp-hex-input" type="text" placeholder="#RRGGBB" />
+        <input name="color" class="ccp-input-short ccp-color-input" type="text" placeholder="#RRGGBB" />
         <input name="alpha" class="ccp-input-short ccp-alpha-input" type="text" placeholder="100%" />
       </div>
       
@@ -554,8 +671,8 @@
     input.dataset.ccp = "1";
     input.style.display = "none";
 
-    const { hex: initialHex, alpha: initialAlpha } = parseColorValue(input.value);
-    let h, s, v, alpha, currentFormat = 'hex';
+    const { hex: initialHex, alpha: initialAlpha, format: initialFormat } = parseColorValue(input.value);
+    let h, s, v, alpha, currentFormat = initialFormat;
     
     // Initialize with parsed values
     ({ h, s, v } = hexToHsv(initialHex));
@@ -568,7 +685,7 @@
     const preview = wrapper.querySelector(".ccp-preview");
     const previewInner = wrapper.querySelector(".ccp-preview-inner");
 
-    let colorBox = null; // سيتم إنشاء مربع الألوان عند الحاجة فقط
+    let colorBox = null;
     let boxResizeObserver = null;
 
     input.after(wrapper);
@@ -582,13 +699,9 @@
       tempBox.innerHTML = COLOR_BOX_TEMPLATE;
       colorBox = tempBox.firstElementChild;
       
-      // ضبط العرض على 358px عند الإنشاء
       colorBox.style.width = "358px";
       
-      // إضافة المستمعين للأحداث
       setupColorBoxListeners(colorBox);
-      
-      // إعداد ResizeObserver لمربع الألوان
       setupBoxResizeObserver(colorBox);
       
       return colorBox;
@@ -597,7 +710,6 @@
     function setupBoxResizeObserver(box) {
       if (typeof ResizeObserver === 'undefined') return;
       
-      // إيقاف أي ResizeObserver موجود سابقاً
       if (boxResizeObserver) {
         boxResizeObserver.disconnect();
       }
@@ -605,7 +717,6 @@
       boxResizeObserver = new ResizeObserver((entries) => {
         for (let entry of entries) {
           if (entry.target === box && box.style.display === "block") {
-            // تأخير بسيط لضمان استقرار الأبعاد
             setTimeout(() => {
               updateIndicatorPositions(box);
             }, 10);
@@ -613,10 +724,7 @@
         }
       });
       
-      // مراقبة تغييرات حجم مربع الألوان
       boxResizeObserver.observe(box);
-      
-      // حفظ المرجع للتنظيف لاحقاً
       boxResizeObservers.set(box, boxResizeObserver);
     }
 
@@ -630,7 +738,6 @@
       const sat = box.querySelector(".ccp-sat");
       const dot = box.querySelector(".ccp-dot");
       
-      // تحديث مواضع المؤشرات بناءً على القيم الحالية
       if (hueBar && hueLine) {
         const hueBarWidth = hueBar.clientWidth;
         if (hueBarWidth > 0) {
@@ -654,7 +761,6 @@
         }
       }
       
-      // تحديث التدرج اللوني للألفا
       const alphaGradient = box.querySelector(".ccp-alpha-gradient");
       if (alphaGradient) {
         const hex = hsvToHex(h, s, v);
@@ -670,7 +776,7 @@
       const alphaBar = box.querySelector(".ccp-alpha");
       const alphaGradient = box.querySelector(".ccp-alpha-gradient");
       const alphaLine = box.querySelector(".ccp-alpha-line");
-      const hexInput = box.querySelector(".ccp-hex-input");
+      const colorInput = box.querySelector(".ccp-color-input");
       const alphaInput = box.querySelector(".ccp-alpha-input");
       const selectedColor = box.querySelector(".ccp-selected-color");
       const selectedColorInner = box.querySelector(".ccp-selected-color-inner");
@@ -689,8 +795,8 @@
       }
 
       function formatColor() {
-        const hex = hsvToHex(h, s, v);
         const rgb = hsvToRgb(h, s, v);
+        const hex = hsvToHex(h, s, v);
         
         switch(currentFormat) {
           case 'hex':
@@ -699,28 +805,48 @@
             return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
           case 'rgba':
             return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha/100})`;
+          case 'hsl': {
+            const hsl = hsvToHsl(h, s, v);
+            return `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s * 100)}%, ${Math.round(hsl.l * 100)}%)`;
+          }
+          case 'hsla': {
+            const hsl = hsvToHsl(h, s, v);
+            return `hsla(${Math.round(hsl.h)}, ${Math.round(hsl.s * 100)}%, ${Math.round(hsl.l * 100)}%, ${alpha/100})`;
+          }
           default:
             return hex;
         }
       }
       
-      function updateHexInputValue() {
-        const hex = hsvToHex(h, s, v);
+      function updateColorInputValue() {
         const rgb = hsvToRgb(h, s, v);
+        const hex = hsvToHex(h, s, v);
         
         switch(currentFormat) {
           case 'hex':
-            hexInput.value = hex;
-            hexInput.placeholder = "#RRGGBB";
+            colorInput.value = hex;
+            colorInput.placeholder = "#RRGGBB";
             break;
           case 'rgb':
-            hexInput.value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
-            hexInput.placeholder = "rgb(r, g, b)";
+            colorInput.value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            colorInput.placeholder = "rgb(r, g, b)";
             break;
           case 'rgba':
-            hexInput.value = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${(alpha/100).toFixed(2)})`;
-            hexInput.placeholder = "rgba(r, g, b, a)";
+            colorInput.value = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${(alpha/100).toFixed(2)})`;
+            colorInput.placeholder = "rgba(r, g, b, a)";
             break;
+          case 'hsl': {
+            const hsl = hsvToHsl(h, s, v);
+            colorInput.value = `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s * 100)}%, ${Math.round(hsl.l * 100)}%)`;
+            colorInput.placeholder = "hsl(h, s%, l%)";
+            break;
+          }
+          case 'hsla': {
+            const hsl = hsvToHsl(h, s, v);
+            colorInput.value = `hsla(${Math.round(hsl.h)}, ${Math.round(hsl.s * 100)}%, ${Math.round(hsl.l * 100)}%, ${(alpha/100).toFixed(2)})`;
+            colorInput.placeholder = "hsla(h, s%, l%, a)";
+            break;
+          }
         }
       }
 
@@ -730,20 +856,15 @@
         
         previewInner.style.background = rgba;
         
-        // Update main input field based on selected format
         const formattedColor = formatColor();
         
-        // Update input field (hex or rgb or rgba)
-        updateHexInputValue();
-        
-        // Update opacity field
+        updateColorInputValue();
         alphaInput.value = `${Math.round(alpha)}%`;
         
-        // Update hidden input field (original input)
         if (input.type === 'color') {
-          input.value = hex; // Use hex only for color inputs
+          input.value = hex;
         } else {
-          input.value = formattedColor; // Use selected format for other inputs
+          input.value = formattedColor;
         }
         
         selectedColorInner.style.background = rgba;
@@ -751,13 +872,11 @@
         hueValue.textContent = `${Math.round(h)}°`;
         alphaValue.textContent = `${Math.round(alpha)}%`;
 
-        // Update saturation area background
         sat.style.background = `
           linear-gradient(to top, black, transparent),
           linear-gradient(to right, white, hsl(${h}, 100%, 50%))
         `;
 
-        // Update dot position in saturation area
         const satWidth = sat.clientWidth;
         const satHeight = sat.clientHeight;
         
@@ -775,34 +894,29 @@
           }, 10);
         }
 
-        // Update Hue bar position
         const hueBarWidth = hueBar.clientWidth;
         if (hueBarWidth > 0) {
           hueLine.style.left = ((h / 360) * hueBarWidth) + "px";
         }
 
-        // Update Alpha bar position
         const alphaBarWidth = alphaBar.clientWidth;
         if (alphaBarWidth > 0) {
           alphaLine.style.left = ((alpha / 100) * alphaBarWidth) + "px";
         }
         
         updateAlphaGradient();
-
-        // Update selected color in palette
         updateSelectedColorInPalette();
 
-        // Trigger events
         input.dispatchEvent(new Event("input", { bubbles: true }));
         input.dispatchEvent(new Event("change", { bubbles: true }));
       }
 
       function toggleFormat() {
-        const formats = ['hex', 'rgb', 'rgba'];
+        const formats = ['hex', 'rgb', 'rgba', 'hsl', 'hsla'];
         const currentIndex = formats.indexOf(currentFormat);
         currentFormat = formats[(currentIndex + 1) % formats.length];
         
-        updateHexInputValue();
+        updateColorInputValue();
         updateUI();
       }
 
@@ -893,9 +1007,8 @@
         updateUI();
       });
 
-      hexInput.addEventListener("input", () => {
-        let value = hexInput.value.trim();
-        
+      colorInput.addEventListener("input", () => {
+        let value = colorInput.value.trim();
         let valid = false;
         
         switch(currentFormat) {
@@ -903,7 +1016,6 @@
             if (!value.startsWith("#")) {
               value = "#" + value;
             }
-            
             if (isValidHex(value)) {
               ({ h, s, v } = hexToHsv(value));
               valid = true;
@@ -917,7 +1029,7 @@
                 const r = parseInt(rgbMatch[1]);
                 const g = parseInt(rgbMatch[2]);
                 const b = parseInt(rgbMatch[3]);
-                const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+                const hex = rgbToHex(r, g, b);
                 if (isValidHex(hex)) {
                   ({ h, s, v } = hexToHsv(hex));
                   valid = true;
@@ -934,12 +1046,39 @@
                 const g = parseInt(rgbaMatch[2]);
                 const b = parseInt(rgbaMatch[3]);
                 const newAlpha = parseFloat(rgbaMatch[4]) * 100;
-                const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+                const hex = rgbToHex(r, g, b);
                 if (isValidHex(hex) && isValidAlpha(newAlpha)) {
                   ({ h, s, v } = hexToHsv(hex));
                   alpha = newAlpha;
                   valid = true;
                 }
+              }
+            }
+            break;
+            
+          case 'hsl':
+            if (isValidHsl(value)) {
+              const hsl = parseHslString(value);
+              if (hsl) {
+                const hsv = hslToHsv(hsl.h, hsl.s, hsl.l);
+                h = hsv.h;
+                s = hsv.s;
+                v = hsv.v;
+                valid = true;
+              }
+            }
+            break;
+            
+          case 'hsla':
+            if (isValidHsla(value)) {
+              const hsla = parseHslString(value);
+              if (hsla) {
+                const hsv = hslToHsv(hsla.h, hsla.s, hsla.l);
+                h = hsv.h;
+                s = hsv.s;
+                v = hsv.v;
+                alpha = hsla.alpha * 100;
+                valid = true;
               }
             }
             break;
@@ -950,11 +1089,11 @@
         }
       });
 
-      hexInput.addEventListener("blur", () => {
-        let value = hexInput.value.trim();
+      colorInput.addEventListener("blur", () => {
+        let value = colorInput.value.trim();
         
         if (!value) {
-          updateHexInputValue();
+          updateColorInputValue();
           return;
         }
         
@@ -975,12 +1114,20 @@
           case 'rgba':
             isValid = isValidRgba(value);
             break;
+            
+          case 'hsl':
+            isValid = isValidHsl(value);
+            break;
+            
+          case 'hsla':
+            isValid = isValidHsla(value);
+            break;
         }
         
         if (!isValid) {
-          updateHexInputValue();
+          updateColorInputValue();
         } else {
-          hexInput.value = value;
+          colorInput.value = value;
         }
       });
 
@@ -1056,12 +1203,12 @@
           .then(() => {
             selectedColorIcon.innerHTML = `<path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/>`;
             
-            const originalText = hexInput.value;
-            hexInput.value = "Copied!";
+            const originalText = colorInput.value;
+            colorInput.value = "Copied!";
             
             setTimeout(() => {
               selectedColorIcon.innerHTML = `<path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/>`;
-              hexInput.value = originalText;
+              colorInput.value = originalText;
             }, 1000);
           })
           .catch(err => {
@@ -1069,20 +1216,17 @@
           });
       });
 
-      // استدعاء updateUI فوراً بعد إعداد المستمعين
       setTimeout(() => {
         updateUI();
       }, 0);
     }
 
     function toggleBox() {
-      // إغلاق مربع الألوان المفتوح حالياً إذا كان مختلفاً عن هذا المربع
       if (currentOpenPicker && currentOpenPicker !== colorBox) {
         currentOpenPicker.style.display = "none";
         if (currentOpenPicker.parentNode) {
           currentOpenPicker.parentNode.removeChild(currentOpenPicker);
         }
-        // تنظيف ResizeObserver للمربع المغلق
         const oldObserver = boxResizeObservers.get(currentOpenPicker);
         if (oldObserver) {
           oldObserver.disconnect();
@@ -1092,30 +1236,20 @@
       }
       
       if (!colorBox || !colorBox.parentNode) {
-        // إنشاء مربع الألوان إذا لم يكن موجوداً
         colorBox = createColorBox();
-        
-        // ضبط العرض على 358px
         colorBox.style.width = "358px";
         colorBox.style.minWidth = "358px";
-        
-        // إضافة مربع الألوان إلى الـ DOM
         wrapper.appendChild(colorBox);
-        
-        // إظهار المربع
         colorBox.style.display = "block";
         currentOpenPicker = colorBox;
         
-        // تأخير طفيف لضمان تحديث المواقع بشكل صحيح
         setTimeout(() => {
           updateIndicatorPositions(colorBox);
         }, 50);
       } else if (colorBox.style.display === "block") {
-        // إذا كان المربع مفتوحاً، قم بإغلاقه وحذفه
         colorBox.style.display = "none";
         colorBox.parentNode.removeChild(colorBox);
         
-        // تنظيف ResizeObserver للمربع المغلق
         if (boxResizeObserver) {
           boxResizeObserver.disconnect();
           boxResizeObserver = null;
@@ -1125,12 +1259,10 @@
         colorBox = null;
         currentOpenPicker = null;
       } else {
-        // إذا كان المربع موجوداً ولكن غير ظاهر، قم بإظهاره
         wrapper.appendChild(colorBox);
         colorBox.style.display = "block";
         currentOpenPicker = colorBox;
         
-        // تحديث مواضع المؤشرات عند إعادة العرض
         setTimeout(() => {
           updateIndicatorPositions(colorBox);
         }, 50);
@@ -1144,7 +1276,6 @@
           colorBox.parentNode.removeChild(colorBox);
         }
         
-        // تنظيف ResizeObserver للمربع المغلق
         if (boxResizeObserver) {
           boxResizeObserver.disconnect();
           boxResizeObserver = null;
@@ -1160,7 +1291,6 @@
 
     document.addEventListener("mousedown", handleDocumentClick);
 
-    // Function to handle window resize and body resize
     function handleResize() {
       if (currentOpenPicker === colorBox && colorBox && colorBox.style.display === "block") {
         colorBox.style.display = "none";
@@ -1168,7 +1298,6 @@
           colorBox.parentNode.removeChild(colorBox);
         }
         
-        // تنظيف ResizeObserver للمربع المغلق
         if (boxResizeObserver) {
           boxResizeObserver.disconnect();
           boxResizeObserver = null;
@@ -1180,7 +1309,6 @@
       }
     }
 
-    // Add resize event listener
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
 
@@ -1190,23 +1318,19 @@
       toggleBox();
     });
 
-    // Initialize preview
     const hex = hsvToHex(h, s, v);
     const rgba = hexToRgba(hex, alpha / 100);
     previewInner.style.background = rgba;
 
-    // Save reference for cleanup
     wrapper._cleanup = () => {
       document.removeEventListener("mousedown", handleDocumentClick);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
       
-      // Remove color box if exists
       if (colorBox && colorBox.parentNode) {
         colorBox.parentNode.removeChild(colorBox);
       }
       
-      // تنظيف ResizeObserver
       if (boxResizeObserver) {
         boxResizeObserver.disconnect();
         boxResizeObserver = null;
@@ -1239,7 +1363,6 @@
     });
     currentOpenPicker = null;
     
-    // تنظيف جميع ResizeObservers
     boxResizeObservers = new WeakMap();
     
     if (resizeObserver) {
@@ -1302,7 +1425,6 @@
     }
   }
 
-  // Auto-initialize when page loads
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       init();
