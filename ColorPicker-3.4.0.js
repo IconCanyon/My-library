@@ -1320,3 +1320,4 @@
   window.CustomColorPicker.checkForNewInputs = checkForDynamicInputs;
 
 })(window, document);
+
