@@ -16,13 +16,14 @@
     }
     .ccp-preview {
       width: 36px !important;
-      height: 36px !important;
-      border-radius: 6px !important;
-      border: 1px solid #ccc !important;
-      cursor: pointer !important;
-      background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%);
-      background-size: 10px 10px;
-      background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+    height: 36px !important;
+    overflow: hidden !important;
+    border-radius: 25px !important;
+    border: 1px solid #ccc !important;
+    cursor: pointer !important;
+    background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%);
+    background-size: 10px 10px;
+    background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
     }
     .ccp-preview-inner {
       width: 100% !important;
@@ -114,6 +115,7 @@
       box-shadow: 0 0 2px #000, 0 0 0 2px #fff inset !important;
       pointer-events: none !important;
       transform: translateX(-3px) !important;
+      transition: 0.1s !important;
     }
     .ccp-input {
       margin-top: 8px !important;
@@ -229,6 +231,63 @@
       font-size: 12px !important;
       color: #666 !important;
     }
+    .color20r0-e2 {
+      display: none !important;
+      flex-wrap: wrap !important;
+      gap: 6.6px !important;
+      padding: 0 9px !important;
+      margin-top: 10px !important;
+    }
+    .color20r0-e2.show {
+      display: flex !important;
+    }
+    .color20r0-e2 a {
+    position: relative !important;
+    cursor: pointer !important;
+    display: block !important;
+    width: 22.9px;
+    height: 22.9px;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    border: solid 1px #00000021 !important;
+    }
+    .color20r0-e2 a:hover {
+      border: solid 1px #0000005b !important;
+    }
+    .color20r0-e2 a::after {
+      position: absolute !important;
+      content: '' !important;
+      z-index: -1 !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 8px 8px !important;
+      background-position: 0 0, 0 4px, 4px -4px, -4px 0px !important;
+    }
+    .color20r0-e2 a.selected {
+      border-color: #ffffff !important;
+    outline: 2px solid #89bcff !important;
+    }
+    .color20r0-e2 a.selected::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      width: 20px !important;
+      height: 20px !important;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 -960 960 960' width='24px' fill='%23ffffff'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E");
+      background-size: contain !important;
+      background-repeat: no-repeat !important;
+      background-position: center !important;
+      filter: drop-shadow(0 0 2px rgb(36 37 39 / 75%)) !important;
+      z-index: 2 !important;
+    }
+    .color20r0-e2 .ripple {
+      background: rgba(0,0,0,0.1) !important;
+    }
     `;
     document.head.appendChild(style);
   }
@@ -252,15 +311,18 @@
                     <path d="M461.05 51a65 65 0 00-45.71-19h-.76a61.81 61.81 0 00-44.36 19.25 12.81 12.81 0 00-1.07 1.25l-54 69.76c-5.62 7.1-12.74 8.68-16.78 4.64l-1.9-1.9a48 48 0 00-67.92 67.92l9.91 9.91a2 2 0 010 2.83L58.7 385.38C54 390.05 46.9 399.85 38.85 431c-4.06 15.71-6.51 29.66-6.61 30.24A16 16 0 0048 480a15.68 15.68 0 002.64-.22c.58-.1 14.44-2.43 30.13-6.44 31.07-7.94 41.05-15.24 45.85-20l179.77-179.79a2 2 0 012.82 0l9.92 9.92a48 48 0 0067.92-67.93l-1.59-1.54c-5-5-2.52-12.11 4.32-17.14l69.75-53.94a17.82 17.82 0 001.47-1.32 63.2 63.2 0 0019-45A63.88 63.88 0 00461.05 51zM250.78 283.9c-2.92 2.92-16.18 7.92-23.39.71s-2.24-20.42.69-23.35l33-33a2 2 0 012.83 0l19.84 19.83a2 2 0 010 2.83z"/>
                   </svg>
                 </button>
-                <a class="ccp-selected-color">
-                    <svg class="ccp-selected-color-icon" xmlns="http://www.w3.org/2000/svg" style="position: absolute; background: #00000030 !important; box-shadow: 0 0 0 6px #00000030 !important; border-radius: 25px !important; height: 18px; z-index: 5; fill: white; width: 18px;" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f">
+                <a class="ccp-selected-color" title="Copy color">
+                    <svg class="ccp-selected-color-icon" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0px 0px 2px #00000063);position: absolute; background: #00000030 !important; box-shadow: 0 0 0 6px #00000030 !important; border-radius: 25px !important; height: 18px; z-index: 5; fill: white; width: 18px;" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f">
                         <path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/>
                     </svg>
                   <div class="ccp-selected-color-inner"></div>
                 </a>
-                <div style="margin-top: 2px; margin-right: 8px;">
+                <div style="margin-top: 2px; margin-right: 0px; width: 69px; display: flex; justify-content: space-between;">
                     <button class="ccp-format-btn Wave-cloud" title="Change color format">
                         <svg xmlns="http://www.w3.org/2000/svg" style="width: 20px !important; height: 20px !important;" class="ionicon" viewBox="0 0 512 512"><path d="M136 208l120-104 120 104M136 304l120 104 120-104" fill="none" stroke="currentColor" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <button class="Primary-colors Wave-cloud" title="Primary colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M430.11 347.9c-6.6-6.1-16.3-7.6-24.6-9-11.5-1.9-15.9-4-22.6-10-14.3-12.7-14.3-31.1 0-43.8l30.3-26.9c46.4-41 46.4-108.2 0-149.2-34.2-30.1-80.1-45-127.8-45-55.7 0-113.9 20.3-158.8 60.1-83.5 73.8-83.5 194.7 0 268.5 41.5 36.7 97.5 55 152.9 55.4h1.7c55.4 0 110-17.9 148.8-52.4 14.4-12.7 11.99-36.6.1-47.7z" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32"/><circle cx="144" cy="208" r="32"/><circle cx="152" cy="311" r="32"/><circle cx="224" cy="144" r="32"/><circle cx="256" cy="367" r="48"/><circle cx="328" cy="144" r="32"/></svg>
                     </button>
                 </div>
             </div>
@@ -287,6 +349,23 @@
         <div class="ccp-input-row">
           <input class="ccp-input-short ccp-hex-input" type="text" placeholder="#RRGGBB" />
           <input class="ccp-input-short ccp-alpha-input" type="text" placeholder="100%" />
+        </div>
+        
+        <div class="color20r0-e2 Wave-all">
+          <a style="background-color: #ff0000;" title="Red" data-color="#ff0000"></a>
+          <a style="background-color: #0000ff;" title="Blue" data-color="#0000ff"></a>
+          <a style="background-color: #ffff00;" title="Yellow" data-color="#ffff00"></a>
+          <a style="background-color: #008000;" title="Green" data-color="#008000"></a>
+          <a style="background-color: #ffa500;" title="Orange" data-color="#ffa500"></a>
+          <a style="background-color: #800080;" title="Purple" data-color="#800080"></a>
+          <a style="background-color: #000000;" title="Black" data-color="#000000"></a>
+          <a style="background-color: #ffffff;" title="White" data-color="#ffffff"></a>
+          <a style="background-color: #808080;" title="Gray" data-color="#808080"></a>
+          <a style="background-color: #a52a2a;" title="Brown" data-color="#a52a2a"></a>
+          <a style="background-color: #ffc0cb;" title="Pink" data-color="#ffc0cb"></a>
+          <a style="background-color: #00ffff;" title="Cyan" data-color="#00ffff"></a>
+          <a style="background-color: #ff00ff;" title="Magenta" data-color="#ff00ff"></a>
+          <a style="background-color: transparent;" title="Transparent" data-color="transparent"></a>
         </div>
       </div>
     </div>
@@ -321,14 +400,14 @@
   }
   
   function hexToRgba(hex, alpha = 1) {
-    if (!hex || typeof hex !== 'string') return 'rgba(0, 0, 0, 1)';
+    if (!hex || typeof hex !== 'string' || hex === 'transparent') return 'rgba(0, 0, 0, 0)';
     
     // Handle short hex
     if (hex.length === 4) {
       hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
     }
     
-    if (!isValidHex(hex)) return 'rgba(0, 0, 0, 1)';
+    if (!isValidHex(hex)) return 'rgba(0, 0, 0, 0)';
     
     const r = parseInt(hex.substr(1, 2), 16);
     const g = parseInt(hex.substr(3, 2), 16);
@@ -354,7 +433,7 @@
   }
 
   function hexToHsv(hex) {
-    if (!hex || typeof hex !== 'string') return { h: 0, s: 0, v: 0 };
+    if (!hex || typeof hex !== 'string' || hex === 'transparent') return { h: 0, s: 0, v: 0 };
     
     if (hex.length === 4) {
       hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
@@ -415,7 +494,9 @@
   }
 
   function parseColorValue(inputValue) {
-    if (!inputValue) return { hex: '#000000', alpha: 100, format: 'hex' };
+    if (!inputValue || inputValue === 'transparent') {
+      return { hex: 'transparent', alpha: 0, format: 'hex' };
+    }
     
     // If hex
     if (isValidHex(inputValue)) {
@@ -485,8 +566,11 @@
     const selectedColorIcon = wrapper.querySelector(".ccp-selected-color-icon");
     const dropperBtn = wrapper.querySelector(".ccp-dropper");
     const formatBtn = wrapper.querySelector(".ccp-format-btn");
+    const primaryColorsBtn = wrapper.querySelector(".Primary-colors");
     const hueValue = wrapper.querySelector(".ccp-hue-value");
     const alphaValue = wrapper.querySelector(".ccp-alpha-value");
+    const colorPalette = wrapper.querySelector(".color20r0-e2");
+    const colorOptions = colorPalette.querySelectorAll("a");
 
     input.after(wrapper);
 
@@ -597,6 +681,9 @@
       
       updateAlphaGradient();
 
+      // Update selected color in palette
+      updateSelectedColorInPalette();
+
       // Trigger events
       input.dispatchEvent(new Event("input", { bubbles: true }));
       input.dispatchEvent(new Event("change", { bubbles: true }));
@@ -629,6 +716,54 @@
       // Update input field value to reflect new format
       updateHexInputValue();
       updateUI();
+    }
+
+    function toggleColorPalette() {
+      colorPalette.classList.toggle("show");
+    }
+
+    function selectColorFromPalette(colorElement) {
+      const color = colorElement.getAttribute("data-color");
+      
+      // Remove selected class from all color options
+      colorOptions.forEach(option => {
+        option.classList.remove("selected");
+      });
+      
+      // Add selected class to clicked color
+      colorElement.classList.add("selected");
+      
+      if (color === "transparent") {
+        // Handle transparent color
+        h = 0;
+        s = 0;
+        v = 0;
+        alpha = 0;
+      } else {
+        // Handle regular colors
+        ({ h, s, v } = hexToHsv(color));
+        alpha = 100;
+      }
+      
+      updateUI();
+    }
+
+    function updateSelectedColorInPalette() {
+      const currentHex = hsvToHex(h, s, v);
+      
+      // Remove selected class from all color options
+      colorOptions.forEach(option => {
+        option.classList.remove("selected");
+      });
+      
+      // Find and select matching color
+      colorOptions.forEach(option => {
+        const optionColor = option.getAttribute("data-color");
+        if (optionColor === currentHex.toLowerCase() || 
+            (alpha === 0 && optionColor === "transparent")) {
+          option.classList.add("selected");
+        }
+      });
     }
 
     preview.addEventListener("mousedown", (e) => {
@@ -843,11 +978,27 @@
         });
     });
 
-    // Add event handler for format change button - fixed here
+    // Add event handler for format change button
     formatBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
       toggleFormat();
+    });
+
+    // Add event handler for primary colors button
+    primaryColorsBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleColorPalette();
+    });
+
+    // Add event handlers for color palette options
+    colorOptions.forEach(option => {
+      option.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        selectColorFromPalette(option);
+      });
     });
 
     selectedColor.addEventListener("click", (e) => {
@@ -891,6 +1042,9 @@
     
     // استدعاء الدالة لتهيئة موضع النقطة
     setTimeout(initializeDotPosition, 100);
+
+    // Update selected color in palette initially
+    updateSelectedColorInPalette();
 
     // Update UI for the first time
     updateUI();
