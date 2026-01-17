@@ -71,16 +71,16 @@
 
     // مصفوفة روابط الصور لكل موقع
     const siteIcons = {
-      whatsapp: "icon/whatsapp.svg",
-      telegram: "icon/Telegram.png",
-      facebook: "icon/Facebook.png",
-      x: "icon/X.svg",
-      linkedin: "icon/LinkedIn.png",
-      email: "icon/gmail.png",
-      sms: "icon/sms.webp",
-      messenger: "icon/Messenger.png",
-      reddit: "icon/reddit.png",
-      pinterest: "icon/pinterest.png"
+      whatsapp: "https://github.com/IconCanyon/Icon-canyon/blob/main/icon/whatsapp.svg",
+      telegram: "https://github.com/IconCanyon/Icon-canyon/blob/main/icon/Telegram.png",
+      facebook: "https://github.com/IconCanyon/Icon-canyon/blob/main/icon/Facebook.png",
+      x: "https://github.com/IconCanyon/Icon-canyon/blob/main/icon/X.svg",
+      linkedin: "https://github.com/IconCanyon/Icon-canyon/blob/main/icon/LinkedIn.png",
+      email: "https://github.com/IconCanyon/Icon-canyon/blob/main/icon/gmail.png",
+      sms: "https://github.com/IconCanyon/Icon-canyon/blob/main/icon/sms.webp",
+      messenger: "https://github.com/IconCanyon/Icon-canyon/blob/main/icon/Messenger.png",
+      reddit: "https://github.com/IconCanyon/Icon-canyon/blob/main/icon/reddit.png",
+      pinterest: "https://github.com/IconCanyon/Icon-canyon/blob/main/icon/pinterest.png"
     };
 
     const checkContainer = document.createElement("div");
@@ -209,3 +209,4 @@
   window.Share={save, shareMultiple};
 
 })();
+
