@@ -85,38 +85,38 @@
 
     const checkContainer = document.createElement("div");
     checkContainer.style.textAlign = "left";
-    checkContainer.style.maxHeight = "200px";
+    checkContainer.style.maxHeight = "240px";
     checkContainer.style.overflowY = "auto";
     checkContainer.style.scrollbarWidth = "none";
     checkContainer.style.marginBottom = "10px";
+    checkContainer.style.display = "flex";
+    checkContainer.style.flexWrap = "wrap";
+    checkContainer.style.gap = "2px";
 
     sites.forEach(site=>{
       const label = document.createElement("label");
       label.style.position = "relative";
-      label.style.justifyContent = "space-between";
-      label.style.display = "flex";
-      label.style.alignItems = "center";
-      label.style.marginBottom = "5px";
-      label.style.cursor = "pointer";
-      label.style.paddingLeft = "34px";
+      label.style.display = "grid";
+      label.style.justifyContent = "center";
+      label.style.width = "92px";
+      label.style.padding = "11px 0px";
+      label.style.paddingTop = "15px";
 
       // صورة الموقع
       const img = document.createElement("img");
       img.src = siteIcons[site] || "";
       img.alt = site;
-      // img.style.width = "24px";
       img.style.height = "24px";
-      img.style.marginRight = "8px";
-      img.style.position = "absolute";
-      img.style.left = "3px";
+      img.style.margin = "auto";
 
       const radio = document.createElement("input");
       radio.type = "radio";          
       radio.name = "shareSite";      
       radio.value = site;
-      radio.style.marginRight="5px";
+      radio.style.margin="2px";
       radio.style.height="18px";
       radio.style.width="18px";
+      radio.style.position="absolute";
       radio.checked = (site === selectedSite);
 
       const span = document.createElement("span");
@@ -209,5 +209,4 @@
   window.Share={save, shareMultiple};
 
 })();
-
 
