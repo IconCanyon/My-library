@@ -72,6 +72,7 @@
     checkContainer.style.textAlign = "left";
     checkContainer.style.maxHeight = "200px";
     checkContainer.style.overflowY = "auto";
+    checkContainer.style.scrollbarWidth = "thin";
     checkContainer.style.marginBottom = "10px";
 
     sites.forEach(site=>{
@@ -179,3 +180,4 @@
   window.Share={save, shareMultiple};
 
 })();
+
