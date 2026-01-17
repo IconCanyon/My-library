@@ -66,7 +66,7 @@
     });
     box.appendChild(textarea);
 
-    // إنشاء checkboxes لكل موقع
+    // إنشاء radio لكل موقع (اختيار واحد فقط)
     const sites = Object.keys(providers);
     const checkContainer = document.createElement("div");
     checkContainer.style.textAlign = "left";
@@ -81,17 +81,18 @@
       label.style.alignItems = "center";
       label.style.marginBottom = "5px";
 
-      const checkbox = document.createElement("input");
-      checkbox.type="checkbox";
-      checkbox.value = site;
-      checkbox.style.marginRight="5px";
-      checkbox.style.height="18px";
-      checkbox.style.width="18px";
+      const radio = document.createElement("input");
+      radio.type = "radio";          // تغيير type إلى radio
+      radio.name = "shareSite";      // نفس الاسم لكل الخيارات
+      radio.value = site;
+      radio.style.marginRight="5px";
+      radio.style.height="18px";
+      radio.style.width="18px";
 
-      // تحديد الموقع الذي تم النقر عليه فقط
-      checkbox.checked = (site === selectedSite);
+      // تحديد الموقع الافتراضي
+      radio.checked = (site === selectedSite);
 
-      label.appendChild(checkbox);
+      label.appendChild(radio);
       label.appendChild(document.createTextNode(site.charAt(0).toUpperCase() + site.slice(1)));
       checkContainer.appendChild(label);
     });
@@ -108,12 +109,12 @@
     });
     sendBtn.addEventListener("click", ()=>{
       const customText = textarea.value.trim();
-      const selectedSites = Array.from(checkContainer.querySelectorAll("input:checked")).map(i=>i.value);
-      if(selectedSites.length===0){
-        alert("يرجى اختيار منصة واحدة على الأقل للمشاركة");
+      const selectedRadio = checkContainer.querySelector("input:checked");
+      if(!selectedRadio){
+        alert("يرجى اختيار منصة واحدة للمشاركة");
         return;
       }
-      shareMultiple(selectedSites, customText);
+      shareMultiple([selectedRadio.value], customText); // تمرير مصفوفة بموقع واحد فقط
       hidePopup();
     });
 
@@ -143,11 +144,11 @@
         box.style.opacity=1;
         textarea.focus();
 
-        // تمرير تلقائي للـ checkbox المحدد
+        // تمرير تلقائي للـ radio المحدد
         if(selectedSite){
-          const targetCheckbox = checkContainer.querySelector(`input[value="${selectedSite}"]`);
-          if(targetCheckbox){
-            targetCheckbox.scrollIntoView({behavior: "smooth", block: "center"});
+          const targetRadio = checkContainer.querySelector(`input[value="${selectedSite}"]`);
+          if(targetRadio){
+            targetRadio.scrollIntoView({behavior: "smooth", block: "center"});
           }
         }
       });
