@@ -10,7 +10,7 @@
     },
     telegram: d => `https://t.me/share/url?url=${encodeURIComponent(d.url||"")}&text=${encodeURIComponent(d.customText||d.text||"")}`,
     facebook: d => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(d.url||"")}`,
-    twitter: d => `https://twitter.com/intent/tweet?text=${encodeURIComponent(d.customText||d.text||"")}&url=${encodeURIComponent(d.url||"")}`,
+    x: d => `https://twitter.com/intent/tweet?text=${encodeURIComponent(d.customText||d.text||"")}&url=${encodeURIComponent(d.url||"")}`,
     linkedin: d => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(d.url||"")}`,
     email: d => `mailto:${d.email||""}?subject=Share&body=${encodeURIComponent(d.customText||d.text||d.url||"")}`,
     sms: d => {
@@ -66,35 +66,66 @@
     });
     box.appendChild(textarea);
 
-    // إنشاء radio لكل موقع (اختيار واحد فقط)
+    // إنشاء radio لكل موقع مع صورة
     const sites = Object.keys(providers);
+
+    // مصفوفة روابط الصور لكل موقع
+    const siteIcons = {
+      whatsapp: "icon/whatsapp.svg",
+      telegram: "icon/Telegram.png",
+      facebook: "icon/Facebook.png",
+      x: "icon/X.svg",
+      linkedin: "icon/LinkedIn.png",
+      email: "icon/gmail.png",
+      sms: "icon/sms.webp",
+      messenger: "icon/Messenger.png",
+      reddit: "icon/reddit.png",
+      pinterest: "icon/pinterest.png"
+    };
+
     const checkContainer = document.createElement("div");
     checkContainer.style.textAlign = "left";
     checkContainer.style.maxHeight = "200px";
     checkContainer.style.overflowY = "auto";
-    checkContainer.style.scrollbarWidth = "thin";
+    checkContainer.style.scrollbarWidth = "none";
     checkContainer.style.marginBottom = "10px";
 
     sites.forEach(site=>{
       const label = document.createElement("label");
-      label.style.display = "flex";
+      label.style.position = "relative";
       label.style.justifyContent = "space-between";
+      label.style.display = "flex";
       label.style.alignItems = "center";
       label.style.marginBottom = "5px";
+      label.style.cursor = "pointer";
+      label.style.paddingLeft = "34px";
+
+      // صورة الموقع
+      const img = document.createElement("img");
+      img.src = siteIcons[site] || "";
+      img.alt = site;
+      // img.style.width = "24px";
+      img.style.height = "24px";
+      img.style.marginRight = "8px";
+      img.style.position = "absolute";
+      img.style.left = "3px";
 
       const radio = document.createElement("input");
-      radio.type = "radio";          // تغيير type إلى radio
-      radio.name = "shareSite";      // نفس الاسم لكل الخيارات
+      radio.type = "radio";          
+      radio.name = "shareSite";      
       radio.value = site;
       radio.style.marginRight="5px";
       radio.style.height="18px";
       radio.style.width="18px";
-
-      // تحديد الموقع الافتراضي
       radio.checked = (site === selectedSite);
 
+      const span = document.createElement("span");
+      span.textContent = site.charAt(0).toUpperCase() + site.slice(1);
+
+      label.appendChild(img);
       label.appendChild(radio);
-      label.appendChild(document.createTextNode(site.charAt(0).toUpperCase() + site.slice(1)));
+      label.appendChild(span);
+
       checkContainer.appendChild(label);
     });
 
@@ -115,7 +146,7 @@
         alert("يرجى اختيار منصة واحدة للمشاركة");
         return;
       }
-      shareMultiple([selectedRadio.value], customText); // تمرير مصفوفة بموقع واحد فقط
+      shareMultiple([selectedRadio.value], customText);
       hidePopup();
     });
 
@@ -145,7 +176,6 @@
         box.style.opacity=1;
         textarea.focus();
 
-        // تمرير تلقائي للـ radio المحدد
         if(selectedSite){
           const targetRadio = checkContainer.querySelector(`input[value="${selectedSite}"]`);
           if(targetRadio){
@@ -169,7 +199,6 @@
     showPopup();
   }
 
-  // ===================== Auto Bind Buttons =====================
   document.addEventListener("click", e=>{
     const el = e.target.closest('[name^="share:"]');
     if(!el) return;
@@ -180,4 +209,3 @@
   window.Share={save, shareMultiple};
 
 })();
-
