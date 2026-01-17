@@ -36,8 +36,31 @@
     });
   }
 
+  // ===================== Get Allowed Sites =====================
+  function getAllowedSites() {
+    const allowedSites = new Set();
+    const shareElements = document.querySelectorAll('[name^="share:"]');
+    
+    shareElements.forEach(el => {
+      const site = el.name.split(":")[1];
+      if (site && providers[site.toLowerCase()]) {
+        allowedSites.add(site.toLowerCase());
+      }
+    });
+    
+    return Array.from(allowedSites);
+  }
+
   // ===================== Create Popup =====================
   function createPopup(selectedSite = null){
+    const allowedSites = getAllowedSites();
+    
+    // إذا لم يكن هناك مواقع مسموح بها، لا تنشئ القائمة
+    if (allowedSites.length === 0) {
+      console.warn("لا توجد مواقع مشاركة مسموح بها في هذه الصفحة");
+      return;
+    }
+
     const overlay = document.createElement("div");
     Object.assign(overlay.style, {
       position:"fixed", top:0, left:0, width:"100%", bottom: "0",
@@ -66,9 +89,6 @@
     });
     box.appendChild(textarea);
 
-    // إنشاء radio لكل موقع مع صورة
-    const sites = Object.keys(providers);
-
     // مصفوفة روابط الصور لكل موقع
     const siteIcons = {
       whatsapp: "https://raw.githubusercontent.com/IconCanyon/Icon-canyon/d897f7ddec753f3c0a2e67d7ef0b6cd31ec780b8/icon/whatsapp.svg",
@@ -93,7 +113,8 @@
     checkContainer.style.flexWrap = "wrap";
     checkContainer.style.gap = "2px";
 
-    sites.forEach(site=>{
+    // عرض فقط المواقع المسموح بها
+    allowedSites.forEach(site=>{
       const label = document.createElement("label");
       label.style.position = "relative";
       label.style.display = "grid";
@@ -177,8 +198,8 @@
         box.style.opacity=1;
         textarea.focus();
 
-        if(selectedSite){
-          const targetRadio = checkContainer.querySelector(`input[value="${selectedSite}"]`);
+        if(selectedSite && allowedSites.includes(selectedSite.toLowerCase())){
+          const targetRadio = checkContainer.querySelector(`input[value="${selectedSite.toLowerCase()}"]`);
           if(targetRadio){
             targetRadio.scrollIntoView({behavior: "smooth", block: "center"});
           }
@@ -210,6 +231,3 @@
   window.Share={save, shareMultiple};
 
 })();
-
-
-
